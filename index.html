@@ -120,6 +120,17 @@
     overflow-x: hidden;
   }
 
+  #bgCanvas {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    display: block;
+  }
+  header, main, footer { position: relative; z-index: 1; }
+
   h1, h2, h3, .display {
     font-family: 'Space Grotesk', 'Inter', sans-serif;
     color: var(--text-primary);
@@ -371,6 +382,7 @@
 </style>
 </head>
 <body>
+<canvas id="bgCanvas" aria-hidden="true"></canvas>
 
 <header>
   <nav class="wrap">
@@ -754,6 +766,143 @@
       });
       window.addEventListener('resize', function () {
         resize();
+      });
+    }
+  })();
+
+  // Full-page ambient background: sparse particles across the whole
+  // viewport, with faint lines to the mouse cursor as it moves anywhere
+  // on the page. Sits behind all content (pointer-events: none), and is
+  // a separate, more subtle layer from the denser NEURAL · CORE panel above.
+  (function () {
+    var canvas = document.getElementById('bgCanvas');
+    if (!canvas || !canvas.getContext) return;
+
+    var ctx = canvas.getContext('2d');
+    var dpr = window.devicePixelRatio || 1;
+    var particles = [];
+    var maxLinkDist = 130;
+    var mouseLinkDist = 180;
+    var mouse = { x: -9999, y: -9999, active: false };
+    var raf = null;
+    var running = false;
+
+    var COLOR_LINK = 'rgba(120,140,255,0.10)';
+    var COLOR_DOT = 'rgba(130,160,255,0.45)';
+    var COLOR_MOUSE_LINK = 'rgba(255,92,179,0.28)';
+
+    function vw() { return window.innerWidth; }
+    function vh() { return window.innerHeight; }
+
+    function resize() {
+      canvas.width = Math.max(1, Math.floor(vw() * dpr));
+      canvas.height = Math.max(1, Math.floor(vh() * dpr));
+      canvas.style.width = vw() + 'px';
+      canvas.style.height = vh() + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function seed() {
+      var area = vw() * vh();
+      var count = Math.max(40, Math.min(130, Math.floor(area / 16000)));
+      particles = [];
+      for (var i = 0; i < count; i++) {
+        particles.push({
+          x: Math.random() * vw(),
+          y: Math.random() * vh(),
+          vx: (Math.random() - 0.5) * 0.15,
+          vy: (Math.random() - 0.5) * 0.15,
+          r: 1 + Math.random() * 1.4
+        });
+      }
+    }
+
+    function frame() {
+      var w = vw(), h = vh();
+      ctx.clearRect(0, 0, w, h);
+
+      if (!prefersReducedMotion) {
+        for (var i = 0; i < particles.length; i++) {
+          var p = particles[i];
+          p.x += p.vx; p.y += p.vy;
+          if (p.x < 0 || p.x > w) p.vx *= -1;
+          if (p.y < 0 || p.y > h) p.vy *= -1;
+          p.x = Math.max(0, Math.min(w, p.x));
+          p.y = Math.max(0, Math.min(h, p.y));
+        }
+      }
+
+      ctx.lineWidth = 1;
+      for (var a = 0; a < particles.length; a++) {
+        for (var b = a + 1; b < particles.length; b++) {
+          var dx = particles[a].x - particles[b].x, dy = particles[a].y - particles[b].y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < maxLinkDist) {
+            ctx.strokeStyle = COLOR_LINK;
+            ctx.globalAlpha = 1 - dist / maxLinkDist;
+            ctx.beginPath();
+            ctx.moveTo(particles[a].x, particles[a].y);
+            ctx.lineTo(particles[b].x, particles[b].y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      if (mouse.active && !prefersReducedMotion) {
+        for (var m = 0; m < particles.length; m++) {
+          var mdx = particles[m].x - mouse.x, mdy = particles[m].y - mouse.y;
+          var mdist = Math.sqrt(mdx * mdx + mdy * mdy);
+          if (mdist < mouseLinkDist) {
+            ctx.strokeStyle = COLOR_MOUSE_LINK;
+            ctx.globalAlpha = 1 - mdist / mouseLinkDist;
+            ctx.beginPath();
+            ctx.moveTo(mouse.x, mouse.y);
+            ctx.lineTo(particles[m].x, particles[m].y);
+            ctx.stroke();
+          }
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      ctx.fillStyle = COLOR_DOT;
+      for (var d = 0; d < particles.length; d++) {
+        ctx.beginPath();
+        ctx.arc(particles[d].x, particles[d].y, particles[d].r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (running) raf = requestAnimationFrame(frame);
+    }
+
+    function start() {
+      if (running || prefersReducedMotion) return;
+      running = true;
+      raf = requestAnimationFrame(frame);
+    }
+    function stop() {
+      running = false;
+      if (raf) cancelAnimationFrame(raf);
+    }
+
+    resize();
+    seed();
+    frame();
+
+    if (!prefersReducedMotion) {
+      start();
+      window.addEventListener('mousemove', function (e) {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+        mouse.active = true;
+      }, { passive: true });
+      document.addEventListener('mouseleave', function () { mouse.active = false; });
+      document.addEventListener('visibilitychange', function () {
+        if (document.hidden) stop(); else start();
+      });
+      window.addEventListener('resize', function () {
+        resize();
+        seed();
       });
     }
   })();
