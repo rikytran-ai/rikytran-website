@@ -114,6 +114,10 @@
   body {
     margin: 0;
     background: var(--bg);
+    background-image:
+      linear-gradient(rgba(45,212,255,0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(45,212,255,0.05) 1px, transparent 1px);
+    background-size: 42px 42px;
     color: var(--text-body);
     font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif;
     line-height: 1.6;
@@ -279,6 +283,17 @@
     position: relative;
     min-height: 420px;
   }
+  .neural-corner {
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid rgba(45,212,255,0.5);
+    pointer-events: none;
+  }
+  .neural-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+  .neural-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+  .neural-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+  .neural-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
   .neural-label {
     text-align: center; font-size: 12px; letter-spacing: 0.15em; color: var(--text-muted);
     margin-bottom: 12px;
@@ -436,6 +451,10 @@
         <div class="tagline-row">Wharton CTO Program &nbsp;·&nbsp; 10 yrs VP of IT &nbsp;·&nbsp; 10 yrs IT Director</div>
       </div>
       <div class="neural-panel" aria-hidden="true">
+        <span class="neural-corner tl"></span>
+        <span class="neural-corner tr"></span>
+        <span class="neural-corner bl"></span>
+        <span class="neural-corner br"></span>
         <div class="neural-label">NEURAL · CORE</div>
         <div class="neural-canvas-wrap">
           <canvas id="neuralCanvas"></canvas>
@@ -628,8 +647,14 @@
   // If reduced motion is preferred, or IntersectionObserver isn't supported,
   // the numbers already shown in the HTML (20+, 4, 100%) are left exactly as they are.
 
-  // Neural network panel: drifting particles, connected by proximity,
-  // plus live lines to the mouse cursor while hovering.
+  // ---------------------------------------------------------------
+  // NEURAL · CORE panel: a fixed 8-node lattice (4 left / 4 right).
+  // Right-column nodes are drawn with a halo ring. Lines connect
+  // every left node to every right node. On top of that static
+  // network: (1) faint lines reach out to the mouse cursor while
+  // hovering the panel, and (2) independent of the mouse, a pink
+  // pulse randomly flashes along one of the edges every few seconds.
+  // ---------------------------------------------------------------
   (function () {
     var wrap = document.querySelector('.neural-canvas-wrap');
     var canvas = document.getElementById('neuralCanvas');
@@ -637,18 +662,43 @@
 
     var ctx = canvas.getContext('2d');
     var dpr = window.devicePixelRatio || 1;
-    var particles = [];
-    var particleCount = 26;
-    var maxLinkDist = 95;
-    var mouseLinkDist = 150;
+    var nodes = [];
+    var edges = [];
     var mouse = { x: 0, y: 0, active: false };
+    var mouseLinkDist = 160;
     var raf = null;
     var running = false;
+    var sparkTimer = null;
+    var spark = null; // { edgeIndex, start, duration }
 
-    var COLOR_LINK = 'rgba(155,92,255,0.28)';
-    var COLOR_DOT = '#4d8dff';
+    var COLOR_LINK = 'rgba(45,212,255,0.30)';
+    var COLOR_DOT = '#2dd4ff';
+    var COLOR_RING = 'rgba(45,212,255,0.55)';
     var COLOR_MOUSE_LINK = 'rgba(255,92,179,0.55)';
     var COLOR_MOUSE_DOT = '#ff5cb3';
+    var COLOR_SPARK = '#ff5cb3';
+
+    function layout() {
+      var w = wrap.clientWidth, h = wrap.clientHeight;
+      var leftX = w * 0.28, rightX = w * 0.72;
+      var rows = 4;
+      var topPad = h * 0.14, bottomPad = h * 0.14;
+      var step = (h - topPad - bottomPad) / (rows - 1);
+      nodes = [];
+      for (var i = 0; i < rows; i++) {
+        nodes.push({ x: leftX, y: topPad + step * i, ring: false, baseY: topPad + step * i, phase: Math.random() * Math.PI * 2 });
+      }
+      for (var j = 0; j < rows; j++) {
+        nodes.push({ x: rightX, y: topPad + step * j, ring: true, baseY: topPad + step * j, phase: Math.random() * Math.PI * 2 });
+      }
+      edges = [];
+      for (var a = 0; a < 4; a++) {
+        for (var b = 4; b < 8; b++) {
+          edges.push([a, b]);
+        }
+      }
+      for (var c = 4; c < 7; c++) { edges.push([c, c + 1]); } // connect the ringed column vertically too
+    }
 
     function resize() {
       var w = wrap.clientWidth, h = wrap.clientHeight;
@@ -657,65 +707,71 @@
       canvas.style.width = w + 'px';
       canvas.style.height = h + 'px';
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      layout();
     }
 
-    function seed() {
-      var w = wrap.clientWidth, h = wrap.clientHeight;
-      particles = [];
-      for (var i = 0; i < particleCount; i++) {
-        particles.push({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          vx: (Math.random() - 0.5) * 0.25,
-          vy: (Math.random() - 0.5) * 0.25,
-          r: 2 + Math.random() * 2.2
-        });
-      }
+    function scheduleSpark() {
+      if (prefersReducedMotion) return;
+      var delay = 2200 + Math.random() * 2200;
+      sparkTimer = setTimeout(function () {
+        spark = { edgeIndex: Math.floor(Math.random() * edges.length), start: performance.now(), duration: 750 };
+        scheduleSpark();
+      }, delay);
     }
 
-    function frame() {
+    function frame(t) {
       var w = wrap.clientWidth, h = wrap.clientHeight;
       ctx.clearRect(0, 0, w, h);
 
       if (!prefersReducedMotion) {
-        for (var i = 0; i < particles.length; i++) {
-          var p = particles[i];
-          p.x += p.vx; p.y += p.vy;
-          if (p.x < 0 || p.x > w) p.vx *= -1;
-          if (p.y < 0 || p.y > h) p.vy *= -1;
-          p.x = Math.max(0, Math.min(w, p.x));
-          p.y = Math.max(0, Math.min(h, p.y));
+        for (var i = 0; i < nodes.length; i++) {
+          nodes[i].y = nodes[i].baseY + Math.sin(t / 1800 + nodes[i].phase) * 4;
         }
       }
 
+      // base lattice
       ctx.lineWidth = 1;
-      for (var a = 0; a < particles.length; a++) {
-        for (var b = a + 1; b < particles.length; b++) {
-          var dx = particles[a].x - particles[b].x, dy = particles[a].y - particles[b].y;
-          var dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < maxLinkDist) {
-            ctx.strokeStyle = COLOR_LINK;
-            ctx.globalAlpha = 1 - dist / maxLinkDist;
-            ctx.beginPath();
-            ctx.moveTo(particles[a].x, particles[a].y);
-            ctx.lineTo(particles[b].x, particles[b].y);
-            ctx.stroke();
-          }
+      ctx.strokeStyle = COLOR_LINK;
+      for (var e = 0; e < edges.length; e++) {
+        var n1 = nodes[edges[e][0]], n2 = nodes[edges[e][1]];
+        ctx.beginPath();
+        ctx.moveTo(n1.x, n1.y);
+        ctx.lineTo(n2.x, n2.y);
+        ctx.stroke();
+      }
+
+      // random pink pulse along one edge, independent of the mouse
+      if (spark) {
+        var elapsed = t - spark.start;
+        if (elapsed > spark.duration) {
+          spark = null;
+        } else {
+          var progress = elapsed / spark.duration;
+          var alpha = progress < 0.5 ? progress * 2 : (1 - progress) * 2;
+          var s1 = nodes[edges[spark.edgeIndex][0]], s2 = nodes[edges[spark.edgeIndex][1]];
+          ctx.strokeStyle = COLOR_SPARK;
+          ctx.globalAlpha = alpha;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(s1.x, s1.y);
+          ctx.lineTo(s2.x, s2.y);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
         }
       }
-      ctx.globalAlpha = 1;
 
+      // mouse-tracking lines
       if (mouse.active && !prefersReducedMotion) {
-        for (var m = 0; m < particles.length; m++) {
-          var mdx = particles[m].x - mouse.x, mdy = particles[m].y - mouse.y;
-          var mdist = Math.sqrt(mdx * mdx + mdy * mdy);
-          if (mdist < mouseLinkDist) {
+        for (var m = 0; m < nodes.length; m++) {
+          var dx = nodes[m].x - mouse.x, dy = nodes[m].y - mouse.y;
+          var dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < mouseLinkDist) {
             ctx.strokeStyle = COLOR_MOUSE_LINK;
-            ctx.globalAlpha = 1 - mdist / mouseLinkDist;
+            ctx.globalAlpha = 1 - dist / mouseLinkDist;
             ctx.lineWidth = 1.4;
             ctx.beginPath();
             ctx.moveTo(mouse.x, mouse.y);
-            ctx.lineTo(particles[m].x, particles[m].y);
+            ctx.lineTo(nodes[m].x, nodes[m].y);
             ctx.stroke();
           }
         }
@@ -726,10 +782,19 @@
         ctx.fill();
       }
 
-      ctx.fillStyle = COLOR_DOT;
-      for (var d = 0; d < particles.length; d++) {
+      // nodes
+      for (var d = 0; d < nodes.length; d++) {
+        var node = nodes[d];
+        if (node.ring) {
+          ctx.strokeStyle = COLOR_RING;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(node.x, node.y, 10, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.fillStyle = COLOR_DOT;
         ctx.beginPath();
-        ctx.arc(particles[d].x, particles[d].y, particles[d].r, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, node.ring ? 4 : 5, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -747,11 +812,11 @@
     }
 
     resize();
-    seed();
-    frame(); // draw one frame immediately, so reduced-motion visitors see a static graphic
+    frame(performance.now());
 
     if (!prefersReducedMotion) {
       start();
+      scheduleSpark();
       canvas.addEventListener('mousemove', function (e) {
         var rect = canvas.getBoundingClientRect();
         mouse.x = e.clientX - rect.left;
@@ -762,7 +827,8 @@
         mouse.active = false;
       });
       document.addEventListener('visibilitychange', function () {
-        if (document.hidden) stop(); else start();
+        if (document.hidden) { stop(); if (sparkTimer) clearTimeout(sparkTimer); }
+        else { start(); scheduleSpark(); }
       });
       window.addEventListener('resize', function () {
         resize();
@@ -770,10 +836,14 @@
     }
   })();
 
-  // Full-page ambient background: sparse particles across the whole
-  // viewport, with faint lines to the mouse cursor as it moves anywhere
-  // on the page. Sits behind all content (pointer-events: none), and is
-  // a separate, more subtle layer from the denser NEURAL · CORE panel above.
+  // ---------------------------------------------------------------
+  // Full-page ambient background: sparse cyan particles across the
+  // whole viewport (matching the grid backdrop), a subset drawn with
+  // a halo ring purely for visual variety, faint lines to the mouse
+  // cursor as it moves anywhere on the page, and the same independent
+  // random pink pulse effect as the panel above, firing between two
+  // nearby particles every few seconds regardless of the mouse.
+  // ---------------------------------------------------------------
   (function () {
     var canvas = document.getElementById('bgCanvas');
     if (!canvas || !canvas.getContext) return;
@@ -786,10 +856,14 @@
     var mouse = { x: -9999, y: -9999, active: false };
     var raf = null;
     var running = false;
+    var sparkTimer = null;
+    var spark = null;
 
-    var COLOR_LINK = 'rgba(120,140,255,0.10)';
-    var COLOR_DOT = 'rgba(130,160,255,0.45)';
-    var COLOR_MOUSE_LINK = 'rgba(255,92,179,0.28)';
+    var COLOR_LINK = 'rgba(45,212,255,0.10)';
+    var COLOR_DOT = 'rgba(45,212,255,0.5)';
+    var COLOR_RING = 'rgba(45,212,255,0.35)';
+    var COLOR_MOUSE_LINK = 'rgba(255,92,179,0.26)';
+    var COLOR_SPARK = 'rgba(255,92,179,0.85)';
 
     function vw() { return window.innerWidth; }
     function vh() { return window.innerHeight; }
@@ -812,12 +886,37 @@
           y: Math.random() * vh(),
           vx: (Math.random() - 0.5) * 0.15,
           vy: (Math.random() - 0.5) * 0.15,
-          r: 1 + Math.random() * 1.4
+          r: 1 + Math.random() * 1.4,
+          ring: Math.random() < 0.12
         });
       }
     }
 
-    function frame() {
+    function nearestNeighbor(index) {
+      var best = -1, bestDist = Infinity;
+      for (var i = 0; i < particles.length; i++) {
+        if (i === index) continue;
+        var dx = particles[i].x - particles[index].x, dy = particles[i].y - particles[index].y;
+        var dist = dx * dx + dy * dy;
+        if (dist < bestDist) { bestDist = dist; best = i; }
+      }
+      return best;
+    }
+
+    function scheduleSpark() {
+      if (prefersReducedMotion || particles.length < 2) return;
+      var delay = 2500 + Math.random() * 3000;
+      sparkTimer = setTimeout(function () {
+        var a = Math.floor(Math.random() * particles.length);
+        var b = nearestNeighbor(a);
+        if (b !== -1) {
+          spark = { a: a, b: b, start: performance.now(), duration: 800 };
+        }
+        scheduleSpark();
+      }, delay);
+    }
+
+    function frame(t) {
       var w = vw(), h = vh();
       ctx.clearRect(0, 0, w, h);
 
@@ -849,6 +948,24 @@
       }
       ctx.globalAlpha = 1;
 
+      if (spark) {
+        var elapsed = t - spark.start;
+        if (elapsed > spark.duration || !particles[spark.a] || !particles[spark.b]) {
+          spark = null;
+        } else {
+          var progress = elapsed / spark.duration;
+          var alpha = progress < 0.5 ? progress * 2 : (1 - progress) * 2;
+          ctx.strokeStyle = COLOR_SPARK;
+          ctx.globalAlpha = alpha;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(particles[spark.a].x, particles[spark.a].y);
+          ctx.lineTo(particles[spark.b].x, particles[spark.b].y);
+          ctx.stroke();
+          ctx.globalAlpha = 1;
+        }
+      }
+
       if (mouse.active && !prefersReducedMotion) {
         for (var m = 0; m < particles.length; m++) {
           var mdx = particles[m].x - mouse.x, mdy = particles[m].y - mouse.y;
@@ -865,10 +982,18 @@
         ctx.globalAlpha = 1;
       }
 
-      ctx.fillStyle = COLOR_DOT;
       for (var d = 0; d < particles.length; d++) {
+        var particle = particles[d];
+        if (particle.ring) {
+          ctx.strokeStyle = COLOR_RING;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(particle.x, particle.y, particle.r + 4, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.fillStyle = COLOR_DOT;
         ctx.beginPath();
-        ctx.arc(particles[d].x, particles[d].y, particles[d].r, 0, Math.PI * 2);
+        ctx.arc(particle.x, particle.y, particle.r, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -887,10 +1012,11 @@
 
     resize();
     seed();
-    frame();
+    frame(performance.now());
 
     if (!prefersReducedMotion) {
       start();
+      scheduleSpark();
       window.addEventListener('mousemove', function (e) {
         mouse.x = e.clientX;
         mouse.y = e.clientY;
@@ -898,7 +1024,8 @@
       }, { passive: true });
       document.addEventListener('mouseleave', function () { mouse.active = false; });
       document.addEventListener('visibilitychange', function () {
-        if (document.hidden) stop(); else start();
+        if (document.hidden) { stop(); if (sparkTimer) clearTimeout(sparkTimer); }
+        else { start(); scheduleSpark(); }
       });
       window.addEventListener('resize', function () {
         resize();
