@@ -858,7 +858,8 @@
     var COLOR_LINK = 'rgba(45,212,255,0.10)';
     var COLOR_DOT = 'rgba(45,212,255,0.5)';
     var COLOR_RING = 'rgba(45,212,255,0.35)';
-    var COLOR_MOUSE_LINK = 'rgba(255,92,179,0.26)';
+    var COLOR_MOUSE_LINK = 'rgba(255,92,179,0.7)';
+    var COLOR_MOUSE_DOT = '#ff5cb3';
     var COLOR_SPARK = 'rgba(255,92,179,0.85)';
 
     function vw() { return window.innerWidth; }
@@ -969,6 +970,7 @@
           if (mdist < mouseLinkDist) {
             ctx.strokeStyle = COLOR_MOUSE_LINK;
             ctx.globalAlpha = 1 - mdist / mouseLinkDist;
+            ctx.lineWidth = 1.8;
             ctx.beginPath();
             ctx.moveTo(mouse.x, mouse.y);
             ctx.lineTo(particles[m].x, particles[m].y);
@@ -976,6 +978,10 @@
           }
         }
         ctx.globalAlpha = 1;
+        ctx.fillStyle = COLOR_MOUSE_DOT;
+        ctx.beginPath();
+        ctx.arc(mouse.x, mouse.y, 3.5, 0, Math.PI * 2);
+        ctx.fill();
       }
 
       for (var d = 0; d < particles.length; d++) {
