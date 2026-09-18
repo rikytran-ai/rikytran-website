@@ -149,6 +149,7 @@
     border-bottom: 1px solid var(--border);
   }
   nav.wrap {
+    position: relative;
     display: flex; align-items: center; justify-content: space-between;
     height: 76px;
   }
@@ -159,6 +160,7 @@
     display: flex; align-items: center; justify-content: center;
     font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 13px; color: var(--bg);
   }
+  .nav-right { display: flex; align-items: center; gap: 18px; }
   .nav-links { display: flex; gap: 36px; }
   .nav-links a { color: var(--text-body); font-size: 15px; transition: color 0.15s; }
   .nav-links a:hover { color: var(--text-primary); }
@@ -176,10 +178,42 @@
     border: none;
     cursor: pointer;
   }
-  .nav-toggle { display: none; }
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    width: 40px; height: 40px;
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    padding: 0;
+  }
+  .nav-toggle .bar {
+    width: 18px; height: 2px; margin: 0 auto;
+    background: var(--text-primary);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+  }
+  .nav-toggle.is-open .bar:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-toggle.is-open .bar:nth-child(2) { opacity: 0; }
+  .nav-toggle.is-open .bar:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
 
   @media (max-width: 860px) {
-    .nav-links { display: none; }
+    .nav-links {
+      display: none;
+      position: absolute;
+      top: 100%; left: 0; right: 0;
+      flex-direction: column;
+      gap: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 32px 18px;
+    }
+    .nav-links.open { display: flex; }
+    .nav-links a { padding: 14px 0; border-bottom: 1px solid var(--border); font-size: 16px; }
+    .nav-links a:last-child { border-bottom: none; }
+    .nav-toggle { display: flex; }
   }
 
   /* Hero */
@@ -401,13 +435,20 @@
       <span class="badge">RT</span>
       RIKY TRAN
     </a>
-    <div class="nav-links">
+    <div class="nav-links" id="navLinks">
       <a href="#about">About</a>
       <a href="#services">Services</a>
       <a href="#expertise">Expertise</a>
       <a href="#approach">Approach</a>
     </div>
-    <a href="#contact" class="btn-pill">Get in touch</a>
+    <div class="nav-right">
+      <a href="#contact" class="btn-pill">Get in touch</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navLinks">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
+    </div>
   </nav>
 </header>
 
@@ -608,6 +649,45 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Mobile nav menu: toggle open/closed, close on link click, outside click, or Escape.
+  (function () {
+    var toggle = document.getElementById('navToggle');
+    var links = document.getElementById('navLinks');
+    if (!toggle || !links) return;
+
+    function closeMenu() {
+      links.classList.remove('open');
+      toggle.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Open navigation menu');
+    }
+    function openMenu() {
+      links.classList.add('open');
+      toggle.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close navigation menu');
+    }
+
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (links.classList.contains('open')) closeMenu(); else openMenu();
+    });
+    links.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', closeMenu);
+    });
+    document.addEventListener('click', function (e) {
+      if (links.classList.contains('open') && !links.contains(e.target) && e.target !== toggle) {
+        closeMenu();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') closeMenu();
+    });
+    window.addEventListener('resize', function () {
+      if (window.innerWidth > 860) closeMenu();
+    });
+  })();
 
   // Stat counters: HTML already shows final values for no-JS / reduced-motion users.
   // Only animate if motion is allowed, and only once each stat scrolls into view.
