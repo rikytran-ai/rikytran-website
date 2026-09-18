@@ -676,24 +676,39 @@
 
     function layout() {
       var w = wrap.clientWidth, h = wrap.clientHeight;
-      var leftX = w * 0.28, rightX = w * 0.72;
-      var rows = 4;
-      var topPad = h * 0.14, bottomPad = h * 0.14;
-      var step = (h - topPad - bottomPad) / (rows - 1);
+      var count = 11;
+      var pad = 26;
       nodes = [];
-      for (var i = 0; i < rows; i++) {
-        nodes.push({ x: leftX, y: topPad + step * i, ring: false, baseY: topPad + step * i, phase: Math.random() * Math.PI * 2 });
+      for (var i = 0; i < count; i++) {
+        var x = pad + Math.random() * (w - pad * 2);
+        var y = pad + Math.random() * (h - pad * 2);
+        nodes.push({
+          x: x, y: y, baseX: x, baseY: y,
+          ring: Math.random() < 0.35,
+          phase: Math.random() * Math.PI * 2
+        });
       }
-      for (var j = 0; j < rows; j++) {
-        nodes.push({ x: rightX, y: topPad + step * j, ring: true, baseY: topPad + step * j, phase: Math.random() * Math.PI * 2 });
-      }
+      // organic mesh: connect each node to its 2 or 3 nearest neighbors
+      var edgeSet = {};
       edges = [];
-      for (var a = 0; a < 4; a++) {
-        for (var b = 4; b < 8; b++) {
-          edges.push([a, b]);
+      for (var a = 0; a < nodes.length; a++) {
+        var dists = [];
+        for (var b = 0; b < nodes.length; b++) {
+          if (a === b) continue;
+          var dx = nodes[a].x - nodes[b].x, dy = nodes[a].y - nodes[b].y;
+          dists.push([b, dx * dx + dy * dy]);
+        }
+        dists.sort(function (p, q) { return p[1] - q[1]; });
+        var linksToMake = 2 + (Math.random() < 0.4 ? 1 : 0);
+        for (var k = 0; k < linksToMake && k < dists.length; k++) {
+          var b2 = dists[k][0];
+          var key = Math.min(a, b2) + '-' + Math.max(a, b2);
+          if (!edgeSet[key]) {
+            edgeSet[key] = true;
+            edges.push([Math.min(a, b2), Math.max(a, b2)]);
+          }
         }
       }
-      for (var c = 4; c < 7; c++) { edges.push([c, c + 1]); } // connect the ringed column vertically too
     }
 
     function resize() {
@@ -721,7 +736,8 @@
 
       if (!prefersReducedMotion) {
         for (var i = 0; i < nodes.length; i++) {
-          nodes[i].y = nodes[i].baseY + Math.sin(t / 1800 + nodes[i].phase) * 4;
+          nodes[i].x = nodes[i].baseX + Math.sin(t / 2000 + nodes[i].phase) * 4;
+          nodes[i].y = nodes[i].baseY + Math.cos(t / 1800 + nodes[i].phase) * 4;
         }
       }
 
