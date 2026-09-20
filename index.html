@@ -425,6 +425,27 @@
     letter-spacing: 0.04em;
     text-align: center;
   }
+
+  /* Calendly popup theming: .calendly-overlay and .calendly-popup are real
+     elements Calendly's own widget.js injects directly into THIS page, not
+     inside the cross-origin iframe, so this CSS reliably applies regardless
+     of Calendly plan tier. The calendar UI inside the iframe itself is a
+     separate matter, see the background_color/text_color/primary_color
+     params on the popup URL below, those require a paid Calendly plan and
+     have had inconsistent rendering on dark themes in the past. */
+  .calendly-overlay {
+    background: rgba(5, 8, 20, 0.85) !important;
+    backdrop-filter: blur(4px);
+  }
+  .calendly-popup {
+    border-radius: 16px !important;
+    overflow: hidden;
+    box-shadow: 0 0 0 1.5px rgba(45, 212, 255, 0.4), 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+  }
+  .calendly-popup-close {
+    background: var(--gradient) !important;
+    border-radius: 50% !important;
+  }
 </style>
 <!-- Calendly widget assets (popup button only, no inline embed / no custom colors,
      see notes: color customization needs a paid plan and has known rendering bugs
@@ -634,7 +655,7 @@
         <p class="section-sub" style="margin-bottom:0;">A short note about your company, your stage, and what you're trying to solve is enough to get started. First conversation is on me.</p>
         <div class="contact-ctas">
           <!-- TODO: replace href with your Calendly (or similar) booking link once set up -->
-          <button type="button" class="btn-pill" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/email-rikytran/30min'}); return false;">Book a call</button>
+          <button type="button" class="btn-pill" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/email-rikytran/30min?background_color=050814&text_color=f3f5fb&primary_color=2dd4ff'}); return false;">Book a call</button>
           <a href="https://www.linkedin.com/in/rikytran/" class="btn-outline" target="_blank" rel="noopener">Connect on LinkedIn</a>
         </div>
       </div>
