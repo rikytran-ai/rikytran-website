@@ -410,6 +410,126 @@
   .faq-item[open] summary::after { transform: rotate(45deg); }
   .faq-item p { margin: 16px 0 0; font-size: 0.98rem; max-width: 640px; }
 
+  /* Architecture (spec sheet) */
+  .spec-panel {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 14px;
+    overflow: hidden;
+  }
+  .spec-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 110px;
+    gap: 20px;
+    align-items: start;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-label {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 0.92rem;
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+  .spec-value { font-size: 0.94rem; color: var(--text-body); }
+  .spec-status {
+    justify-self: end;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 999px;
+    white-space: nowrap;
+    height: fit-content;
+  }
+  .spec-status.live { color: #6ee7b7; background: rgba(110,231,183,0.12); border: 1px solid rgba(110,231,183,0.3); }
+  .spec-status.verify { color: #fcd34d; background: rgba(252,211,77,0.12); border: 1px solid rgba(252,211,77,0.3); }
+  @media (max-width: 700px) {
+    .spec-row { grid-template-columns: 1fr; gap: 6px; }
+    .spec-status { justify-self: start; }
+  }
+  .spec-note {
+    margin-top: 24px;
+    font-size: 0.92rem;
+    color: var(--text-muted);
+    max-width: 720px;
+  }
+
+  /* AI & Tech Radar */
+  .radar-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  .radar-quad {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 28px;
+    border-top: 2px solid var(--accent-blue);
+  }
+  .radar-quad.trial { border-top-color: var(--accent-purple); }
+  .radar-quad.assess { border-top-color: var(--accent-pink); }
+  .radar-quad.hold { border-top-color: var(--text-muted); }
+  .radar-quad h3 {
+    font-size: 1.05rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+  }
+  .radar-item { margin-bottom: 16px; }
+  .radar-item:last-child { margin-bottom: 0; }
+  .radar-item-name { font-size: 0.98rem; color: var(--text-primary); font-weight: 600; margin-bottom: 4px; }
+  .radar-item-note { font-size: 0.88rem; color: var(--text-muted); }
+  @media (max-width: 760px) { .radar-grid { grid-template-columns: 1fr; } }
+
+  /* ROI Calculator */
+  .roi-panel {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+  }
+  .roi-field { margin-bottom: 20px; }
+  .roi-field label {
+    display: flex; justify-content: space-between;
+    font-size: 0.88rem; color: var(--text-body); margin-bottom: 8px;
+  }
+  .roi-field label span:last-child { color: var(--accent-blue); font-weight: 600; }
+  .roi-field input[type="range"] { width: 100%; accent-color: var(--accent-blue); }
+  .roi-field input[type="number"] {
+    width: 100%;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+  }
+  .roi-output {
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 28px;
+    background: var(--bg-panel);
+    align-self: start;
+  }
+  .roi-output-num {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+  }
+  .roi-output-label {
+    font-size: 12px; letter-spacing: 0.06em; color: var(--text-muted);
+    text-transform: uppercase; margin: 4px 0 20px;
+  }
+  .roi-roadmap { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .roi-roadmap-step { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 8px; }
+  .roi-roadmap-step strong { color: var(--text-body); }
+  .roi-disclaimer { margin-top: 28px; font-size: 0.82rem; color: var(--text-muted); max-width: 720px; }
+  @media (max-width: 860px) { .roi-panel { grid-template-columns: 1fr; } }
+
   /* Contact */
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
   .contact-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin: 32px 0; }
@@ -467,6 +587,10 @@
       <a href="#services">Services</a>
       <a href="#expertise">Expertise</a>
       <a href="#approach">Approach</a>
+      <a href="#architecture">Architecture</a>
+      <a href="#radar">Radar</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact">Contact</a>
     </div>
     <div class="nav-right">
       <a href="#contact" class="btn-pill">Get in touch</a>
@@ -498,7 +622,7 @@
       <div><div class="stat-num" data-final="20" data-suffix="+">20+</div><div class="stat-label">Years senior IT leadership</div></div>
       <div><div class="stat-num" data-final="4" data-suffix="">4</div><div class="stat-label">LLM vendors evaluated</div></div>
       <div><div class="stat-num" data-static="24/7">24/7</div><div class="stat-label">Support scaling target</div></div>
-      <div><div class="stat-num" data-final="100" data-suffix="%">100%</div><div class="stat-label">Compliance focused</div></div>
+      <div><div class="stat-num" data-static="WHARTON">WHARTON</div><div class="stat-label">CTO Program, University of Pennsylvania</div></div>
     </div>
   </div>
 
@@ -626,9 +750,146 @@
     </div>
   </section>
 
+  <!-- Architecture -->
+  <section id="architecture" class="wrap">
+    <div class="section-index">05 / ARCHITECTURE</div>
+    <h2 class="section-title">Built the way I'd tell a client to build it.</h2>
+    <p class="section-sub">No agency, no CMS, no server to patch. This page is a working example of the discipline behind the advisory, not just a claim about it.</p>
+    <div class="spec-panel">
+      <div class="spec-row">
+        <div class="spec-label">Hosting &amp; CDN</div>
+        <div class="spec-value">Cloudflare Pages. Static assets served from the edge, no origin server to maintain or patch.</div>
+        <div class="spec-status live">LIVE</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">Deployment</div>
+        <div class="spec-value">Git-based, push-to-deploy CI/CD. Every change is versioned, nothing is edited in place.</div>
+        <div class="spec-status live">LIVE</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">Rendering</div>
+        <div class="spec-value">Static HTML, CSS, and hand-written JavaScript. No framework, no build step, no client-side hydration.</div>
+        <div class="spec-status live">LIVE</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">Interactivity</div>
+        <div class="spec-value">Canvas-based particle network, built without an animation library. Respects prefers-reduced-motion.</div>
+        <div class="spec-status live">LIVE</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">Scheduling</div>
+        <div class="spec-value">Calendly popup widget, loaded asynchronously. No first-party form data stored on this site.</div>
+        <div class="spec-status live">LIVE</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">Transport &amp; DNS security</div>
+        <div class="spec-value">TLS and DNSSEC posture managed at the registrar and Cloudflare zone level.</div>
+        <div class="spec-status verify">VERIFY</div>
+      </div>
+      <div class="spec-row">
+        <div class="spec-label">Security headers</div>
+        <div class="spec-value">Content-Security-Policy, HSTS, and related headers, configured via a Cloudflare Pages _headers file.</div>
+        <div class="spec-status verify">VERIFY</div>
+      </div>
+    </div>
+    <p class="spec-note">LIVE reflects what's confirmed in this page's own source. VERIFY items depend on registrar and Cloudflare zone settings that live outside this file, worth a quick pass through your DNS provider and a header scanner before this section goes live.</p>
+  </section>
+
+  <!-- AI & Tech Radar -->
+  <section id="radar" class="wrap">
+    <div class="section-index">06 / AI &amp; TECH RADAR</div>
+    <h2 class="section-title">Where things stand, in plain terms.</h2>
+    <p class="section-sub">A working view of the AI and IT tools in active use or evaluation. Updated as positions change, not written once and left to go stale.</p>
+    <div class="radar-grid">
+      <div class="radar-quad">
+        <h3>Adopt</h3>
+        <div class="radar-item">
+          <div class="radar-item-name">Microsoft Copilot</div>
+          <div class="radar-item-note">Native to the M365 tenant already in place. Data stays inside existing licensing and compliance boundaries.</div>
+        </div>
+        <div class="radar-item">
+          <div class="radar-item-name">Azure OpenAI</div>
+          <div class="radar-item-note">Enterprise data residency and admin controls make it the default choice for production workloads.</div>
+        </div>
+      </div>
+      <div class="radar-quad trial">
+        <h3>Trial</h3>
+        <div class="radar-item">
+          <div class="radar-item-name">Claude</div>
+          <div class="radar-item-note">Active pilot for knowledge work and drafting. Strong reasoning quality, evaluating fit against governance requirements.</div>
+        </div>
+        <div class="radar-item">
+          <div class="radar-item-name">ServiceNow Virtual Agent</div>
+          <div class="radar-item-note">Piloting for Tier 1 deflection, watching containment rate before wider rollout.</div>
+        </div>
+      </div>
+      <div class="radar-quad assess">
+        <h3>Assess</h3>
+        <div class="radar-item">
+          <div class="radar-item-name">Google Gemini</div>
+          <div class="radar-item-note">Watching for multimodal use cases and pricing shifts, no committed workload yet.</div>
+        </div>
+        <div class="radar-item">
+          <div class="radar-item-name">Perplexity</div>
+          <div class="radar-item-note">Useful for research tasks, still reviewing data handling terms before broader use.</div>
+        </div>
+      </div>
+      <div class="radar-quad hold">
+        <h3>Hold</h3>
+        <div class="radar-item">
+          <div class="radar-item-name">Consumer-tier AI tools without an enterprise agreement</div>
+          <div class="radar-item-note">No admin controls, no audit trail, no data processing agreement. Not a fit for regulated environments regardless of capability.</div>
+        </div>
+      </div>
+    </div>
+    <p class="spec-note">These are directional positions reflecting current practice, not a formal vendor scorecard. They shift as tools, terms, and internal evaluations change.</p>
+  </section>
+
+  <!-- ROI Calculator -->
+  <section id="roi" class="wrap">
+    <div class="section-index">07 / ROI CALCULATOR</div>
+    <h2 class="section-title">What automation could be worth to your team.</h2>
+    <p class="section-sub">Adjust the numbers to roughly match your environment. This is a starting point for a conversation, not a budget commitment.</p>
+    <div class="roi-panel">
+      <div>
+        <div class="roi-field">
+          <label>Tickets handled per month <span id="roiTicketsVal">400</span></label>
+          <input type="range" id="roiTickets" min="20" max="3000" step="10" value="400">
+        </div>
+        <div class="roi-field">
+          <label>Average handle time, minutes <span id="roiHandleVal">18</span></label>
+          <input type="range" id="roiHandle" min="3" max="90" step="1" value="18">
+        </div>
+        <div class="roi-field">
+          <label>Fully loaded cost per IT hour <span id="roiCostVal">$65</span></label>
+          <input type="range" id="roiCost" min="25" max="200" step="5" value="65">
+        </div>
+        <div class="roi-field">
+          <label>Assumed deflection rate from automation <span id="roiDeflectVal">20%</span></label>
+          <input type="range" id="roiDeflect" min="5" max="60" step="5" value="20">
+        </div>
+      </div>
+      <div class="roi-output">
+        <div class="roi-output-num" id="roiHours">0</div>
+        <div class="roi-output-label">Support hours freed per quarter</div>
+        <div class="roi-output-num" id="roiSavings">$0</div>
+        <div class="roi-output-label">Estimated cost impact per quarter</div>
+        <div class="roi-roadmap">
+          <div class="roi-roadmap-step"><strong>Days 1 to 30.</strong> Baseline current ticket taxonomy and resolution times.</div>
+          <div class="roi-roadmap-step"><strong>Days 31 to 60.</strong> Pilot deflection on the highest volume ticket categories.</div>
+          <div class="roi-roadmap-step"><strong>Days 61 to 90.</strong> Measure containment and first contact resolution, then decide where to scale.</div>
+        </div>
+        <div class="hero-ctas" style="margin-top:24px;">
+          <a href="https://calendly.com/email-rikytran/30min" class="btn-pill" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/email-rikytran/30min?background_color=050814&text_color=f3f5fb&primary_color=2dd4ff'}); return false;">Model this for your team</a>
+        </div>
+      </div>
+    </div>
+    <p class="roi-disclaimer">Estimates assume linear savings from deflected tickets and do not account for implementation time, licensing cost, or change management effort. Treat this as a directional starting point for a scoping conversation, not a guaranteed return.</p>
+  </section>
+
   <!-- FAQ, added -->
   <section id="faq" class="wrap">
-    <div class="section-index">05 / FAQ</div>
+    <div class="section-index">08 / FAQ</div>
     <h2 class="section-title">Common questions.</h2>
     <div class="faq-list">
       <details class="faq-item">
@@ -648,13 +909,13 @@
 
   <!-- Contact -->
   <section id="contact" class="wrap">
-    <div class="section-index">06 / CONTACT</div>
+    <div class="section-index">09 / CONTACT</div>
     <div class="contact-grid">
       <div>
         <h2 class="section-title">Let's see if there's a fit.</h2>
         <p class="section-sub" style="margin-bottom:0;">A short note about your company, your stage, and what you're trying to solve is enough to get started. First conversation is on me.</p>
         <div class="contact-ctas">
-          <button type="button" class="btn-pill" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/email-rikytran/30min?background_color=050814&text_color=f3f5fb&primary_color=2dd4ff'}); return false;">Book a call</button>
+          <a href="https://calendly.com/email-rikytran/30min" class="btn-pill" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/email-rikytran/30min?background_color=050814&text_color=f3f5fb&primary_color=2dd4ff'}); return false;">Book a call</a>
           <a href="https://www.linkedin.com/in/rikytran/" class="btn-outline" target="_blank" rel="noopener">Connect on LinkedIn</a>
         </div>
       </div>
@@ -670,11 +931,56 @@
 </main>
 
 <footer>
-  © <span id="year">2026</span> RIKY TRAN · IT &amp; AI STRATEGY ADVISORY · ALL RIGHTS RESERVED
+  © <span id="year">2026</span> RIKY TRAN · IT AND AI STRATEGY ADVISORY · ALL RIGHTS RESERVED
 </footer>
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // ROI calculator: pure client-side arithmetic, no network calls, no stored data.
+  (function () {
+    var tickets = document.getElementById('roiTickets');
+    var handle = document.getElementById('roiHandle');
+    var cost = document.getElementById('roiCost');
+    var deflect = document.getElementById('roiDeflect');
+    if (!tickets || !handle || !cost || !deflect) return;
+
+    var ticketsVal = document.getElementById('roiTicketsVal');
+    var handleVal = document.getElementById('roiHandleVal');
+    var costVal = document.getElementById('roiCostVal');
+    var deflectVal = document.getElementById('roiDeflectVal');
+    var hoursOut = document.getElementById('roiHours');
+    var savingsOut = document.getElementById('roiSavings');
+
+    function currency(n) {
+      return '$' + Math.round(n).toLocaleString('en-US');
+    }
+
+    function recalc() {
+      var t = parseInt(tickets.value, 10);
+      var h = parseInt(handle.value, 10);
+      var c = parseInt(cost.value, 10);
+      var d = parseInt(deflect.value, 10);
+
+      ticketsVal.textContent = t.toLocaleString('en-US');
+      handleVal.textContent = h;
+      costVal.textContent = '$' + c;
+      deflectVal.textContent = d + '%';
+
+      var ticketsPerQuarter = t * 3;
+      var deflectedTickets = ticketsPerQuarter * (d / 100);
+      var hoursSaved = deflectedTickets * (h / 60);
+      var costImpact = hoursSaved * c;
+
+      hoursOut.textContent = Math.round(hoursSaved).toLocaleString('en-US');
+      savingsOut.textContent = currency(costImpact);
+    }
+
+    [tickets, handle, cost, deflect].forEach(function (el) {
+      el.addEventListener('input', recalc);
+    });
+    recalc();
+  })();
 
   // Mobile nav menu: toggle open/closed, close on link click, outside click, or Escape.
   (function () {
