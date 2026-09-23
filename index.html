@@ -565,6 +565,92 @@
   .roi-disclaimer { margin-top: 28px; font-size: 0.82rem; color: var(--text-muted); max-width: 720px; }
   @media (max-width: 860px) { .roi-panel { grid-template-columns: 1fr; } }
 
+  /* AI Executive Assistant */
+  .assist-panel {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .assist-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .assist-chip {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    color: var(--text-body);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 0.86rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .assist-chip:hover { border-color: var(--accent-blue); color: var(--text-primary); }
+  .assist-chip:disabled { opacity: 0.5; cursor: not-allowed; }
+  .assist-input-row { display: flex; gap: 10px; }
+  .assist-input-row input {
+    flex: 1;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.98rem;
+  }
+  .assist-input-row input:focus { outline: none; border-color: var(--accent-blue); }
+  .assist-input-row button {
+    background: var(--gradient);
+    color: var(--bg);
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 10px;
+    padding: 0 26px;
+    font-size: 0.95rem;
+    cursor: pointer;
+    min-width: 92px;
+  }
+  .assist-input-row button:disabled { opacity: 0.6; cursor: not-allowed; }
+  .assist-answer {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+  .assist-answer.visible { display: block; }
+  .assist-answer.error .assist-answer-a { color: var(--text-muted); }
+  .assist-answer-q {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 1.02rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .assist-answer-a { font-size: 0.98rem; color: var(--text-body); max-width: 700px; white-space: pre-wrap; }
+  .assist-trace {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+  .assist-note {
+    margin-top: 24px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+  @keyframes assist-pulse { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+  .assist-loading span {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--accent-blue);
+    border-radius: 50%;
+    margin-right: 4px;
+    animation: assist-pulse 1s infinite;
+  }
+  .assist-loading span:nth-child(2) { animation-delay: 0.2s; }
+  .assist-loading span:nth-child(3) { animation-delay: 0.4s; }
+
   /* Contact */
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
   .contact-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin: 32px 0; }
@@ -624,6 +710,7 @@
       <a href="#approach">Approach</a>
       <a href="#architecture">Architecture</a>
       <a href="#radar">Radar</a>
+      <a href="#assistant">Ask</a>
       <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
     </div>
@@ -922,9 +1009,35 @@
     <p class="roi-disclaimer">Estimates assume linear savings from deflected tickets and do not account for implementation time, licensing cost, or change management effort. Treat this as a directional starting point for a scoping conversation, not a guaranteed return.</p>
   </section>
 
+  <!-- AI Executive Assistant -->
+  <section id="assistant" class="wrap">
+    <div class="section-index">08 / ASK</div>
+    <h2 class="section-title">Ask the assistant.</h2>
+    <p class="section-sub">A live Claude Sonnet 5 call, grounded only in what's on this page, running behind a rate-limited edge function. Not a demo, the real thing, with real guardrails.</p>
+    <div class="assist-panel">
+      <div class="assist-chips" id="assistChips">
+        <button type="button" class="assist-chip" data-q="What's included in AI Strategy and Governance?">AI Strategy and Governance?</button>
+        <button type="button" class="assist-chip" data-q="Do you help with SOC 2 readiness?">SOC 2 readiness?</button>
+        <button type="button" class="assist-chip" data-q="How does an engagement actually start?">How does it start?</button>
+        <button type="button" class="assist-chip" data-q="Do you help build RAG or internal knowledge bases?">RAG / knowledge bases?</button>
+        <button type="button" class="assist-chip" data-q="Where are you based?">Where are you based?</button>
+      </div>
+      <div class="assist-input-row">
+        <input type="text" id="assistInput" placeholder="Ask anything about the services, process, or approach" maxlength="300" />
+        <button type="button" id="assistSubmit">Ask</button>
+      </div>
+      <div class="assist-answer" id="assistAnswer">
+        <div class="assist-answer-q" id="assistAnswerQ"></div>
+        <div class="assist-answer-a" id="assistAnswerA"></div>
+        <div class="assist-trace" id="assistTrace" style="display:none;"></div>
+      </div>
+    </div>
+    <p class="assist-note">Answers are generated live and can occasionally be wrong. For anything you're relying on, confirm it on a call. This runs behind a per-visitor daily limit and a hard monthly spend cap, so it may say it's unavailable if either is reached.</p>
+  </section>
+
   <!-- FAQ, added -->
   <section id="faq" class="wrap">
-    <div class="section-index">08 / FAQ</div>
+    <div class="section-index">09 / FAQ</div>
     <h2 class="section-title">Common questions.</h2>
     <div class="faq-list">
       <details class="faq-item">
@@ -944,7 +1057,7 @@
 
   <!-- Contact -->
   <section id="contact" class="wrap">
-    <div class="section-index">09 / CONTACT</div>
+    <div class="section-index">10 / CONTACT</div>
     <div class="contact-grid">
       <div>
         <h2 class="section-title">Let's see if there's a fit.</h2>
@@ -971,6 +1084,80 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // AI Executive Assistant: calls a rate-limited Cloudflare Pages Function
+  // (/api/ask) which proxies to the Anthropic API server-side. No API key
+  // ever touches this file or the browser.
+  (function () {
+    var input = document.getElementById('assistInput');
+    var submit = document.getElementById('assistSubmit');
+    var chips = document.getElementById('assistChips');
+    var answerBox = document.getElementById('assistAnswer');
+    var answerQ = document.getElementById('assistAnswerQ');
+    var answerA = document.getElementById('assistAnswerA');
+    var trace = document.getElementById('assistTrace');
+    if (!input || !submit || !answerBox) return;
+
+    var inFlight = false;
+
+    function setButtons(disabled) {
+      submit.disabled = disabled;
+      chips.querySelectorAll('.assist-chip').forEach(function (c) { c.disabled = disabled; });
+    }
+
+    async function ask(raw) {
+      var q = (raw || '').trim();
+      if (!q || inFlight) return;
+      inFlight = true;
+      setButtons(true);
+
+      answerQ.textContent = q;
+      answerA.innerHTML = '<span class="assist-loading"><span></span><span></span><span></span></span>';
+      trace.style.display = 'none';
+      answerBox.classList.remove('error');
+      answerBox.classList.add('visible');
+
+      try {
+        var res = await fetch('/api/ask', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ question: q })
+        });
+        var data = await res.json();
+
+        if (data.error) {
+          answerBox.classList.add('error');
+          answerA.textContent = data.message || 'Something went wrong. Please book a call instead.';
+        } else {
+          answerA.textContent = data.reply;
+          if (data.model) {
+            trace.textContent = 'Answered by ' + data.model;
+            trace.style.display = 'block';
+          }
+        }
+      } catch (e) {
+        answerBox.classList.add('error');
+        answerA.textContent = 'Could not reach the assistant right now. Please book a call instead.';
+      } finally {
+        inFlight = false;
+        setButtons(false);
+      }
+    }
+
+    submit.addEventListener('click', function () { ask(input.value); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') ask(input.value);
+    });
+    if (chips) {
+      chips.querySelectorAll('.assist-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var q = chip.getAttribute('data-q');
+          input.value = q;
+          ask(q);
+        });
+      });
+    }
+  })();
 
   (function () {
     var tickets = document.getElementById('roiTickets');
