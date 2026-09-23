@@ -13,6 +13,11 @@
 <meta name="theme-color" content="#050814" />
 <link rel="canonical" href="https://rikytran.com/" />
 
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
 <!-- Favicon -->
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -81,6 +86,36 @@
       "founder": { "@id": "https://rikytran.com/#person" },
       "sameAs": [
         "https://www.linkedin.com/in/rikytran/"
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://rikytran.com/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Aren't you already working full time? How does this fit?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. This practice runs alongside a full time senior IT role at a public biotech, by design. It keeps my judgment current and vendor neutral, since I am living the same tradeoffs my clients face. Engagements are scoped narrowly, a policy, a vendor evaluation, a rollout plan, and run on evenings and weekends, so there is no ambiguity about availability once we agree on scope."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "What does an engagement typically cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Most engagements run four to eight weeks and are priced as a fixed fee scoped to a specific deliverable, not an hourly or open ended retainer. Exact pricing depends on scope, and the first conversation is free, so we can figure out together whether it is a fit before any commitment."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Who is this for?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Small and growing companies that need senior IT or AI governance judgment but are not ready for a full time hire in that seat. Common starting points are an AI policy, an LLM vendor evaluation, or a Microsoft 365 and Copilot rollout plan."
+          }
+        }
       ]
     }
   ]
@@ -530,6 +565,71 @@
   .roi-disclaimer { margin-top: 28px; font-size: 0.82rem; color: var(--text-muted); max-width: 720px; }
   @media (max-width: 860px) { .roi-panel { grid-template-columns: 1fr; } }
 
+  /* Ask assistant */
+  .ask-panel {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 32px;
+  }
+  .ask-chips { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px; }
+  .ask-chip {
+    border: 1px solid var(--border);
+    background: var(--bg-panel);
+    color: var(--text-body);
+    border-radius: 999px;
+    padding: 9px 16px;
+    font-size: 0.86rem;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .ask-chip:hover { border-color: var(--accent-blue); color: var(--text-primary); }
+  .ask-input-row { display: flex; gap: 10px; }
+  .ask-input-row input {
+    flex: 1;
+    background: var(--bg-panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.98rem;
+  }
+  .ask-input-row input:focus { outline: none; border-color: var(--accent-blue); }
+  .ask-input-row button {
+    background: var(--gradient);
+    color: var(--bg);
+    font-weight: 600;
+    font-family: inherit;
+    border: none;
+    border-radius: 10px;
+    padding: 0 26px;
+    font-size: 0.95rem;
+    cursor: pointer;
+  }
+  .ask-answer {
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: none;
+  }
+  .ask-answer.visible { display: block; }
+  .ask-answer-q {
+    font-family: 'Space Grotesk', 'Inter', sans-serif;
+    font-size: 1.02rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+  .ask-answer-a { font-size: 0.98rem; color: var(--text-body); max-width: 700px; }
+  .ask-answer-a a { color: var(--accent-blue); text-decoration: underline; }
+  .ask-note {
+    margin-top: 24px;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
   /* Contact */
   .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
   .contact-ctas { display: flex; gap: 14px; flex-wrap: wrap; margin: 32px 0; }
@@ -589,6 +689,7 @@
       <a href="#approach">Approach</a>
       <a href="#architecture">Architecture</a>
       <a href="#radar">Radar</a>
+      <a href="#assistant">Ask</a>
       <a href="#faq">FAQ</a>
       <a href="#contact">Contact</a>
     </div>
@@ -887,9 +988,34 @@
     <p class="roi-disclaimer">Estimates assume linear savings from deflected tickets and do not account for implementation time, licensing cost, or change management effort. Treat this as a directional starting point for a scoping conversation, not a guaranteed return.</p>
   </section>
 
+  <!-- Ask assistant -->
+  <section id="assistant" class="wrap">
+    <div class="section-index">08 / ASK</div>
+    <h2 class="section-title">Ask a quick question.</h2>
+    <p class="section-sub">Matched instantly from what's actually on this page. No account, no data leaving your browser, nothing sent anywhere. For anything more specific than this can handle, book a call.</p>
+    <div class="ask-panel">
+      <div class="ask-chips" id="askChips">
+        <button type="button" class="ask-chip" data-q="What does an engagement cost?">What does an engagement cost?</button>
+        <button type="button" class="ask-chip" data-q="How does this work alongside your full time job?">Full time job, how does that work?</button>
+        <button type="button" class="ask-chip" data-q="What services do you offer?">What services do you offer?</button>
+        <button type="button" class="ask-chip" data-q="Are you available now?">Are you available right now?</button>
+        <button type="button" class="ask-chip" data-q="How is this site built?">How is this site built?</button>
+      </div>
+      <div class="ask-input-row">
+        <input type="text" id="askInput" placeholder="Type a question, e.g. how does pricing work" maxlength="140" />
+        <button type="button" id="askSubmit">Ask</button>
+      </div>
+      <div class="ask-answer" id="askAnswer">
+        <div class="ask-answer-q" id="askAnswerQ"></div>
+        <div class="ask-answer-a" id="askAnswerA"></div>
+      </div>
+    </div>
+    <p class="ask-note">This runs entirely as JavaScript in your browser, matched against a curated set of answers below, not a live model call. Full transparency on that in the Architecture section above.</p>
+  </section>
+
   <!-- FAQ, added -->
   <section id="faq" class="wrap">
-    <div class="section-index">08 / FAQ</div>
+    <div class="section-index">09 / FAQ</div>
     <h2 class="section-title">Common questions.</h2>
     <div class="faq-list">
       <details class="faq-item">
@@ -909,7 +1035,7 @@
 
   <!-- Contact -->
   <section id="contact" class="wrap">
-    <div class="section-index">09 / CONTACT</div>
+    <div class="section-index">10 / CONTACT</div>
     <div class="contact-grid">
       <div>
         <h2 class="section-title">Let's see if there's a fit.</h2>
@@ -936,6 +1062,194 @@
 
 <script>
   document.getElementById('year').textContent = new Date().getFullYear();
+
+  // Ask assistant: keyword-matched against a curated knowledge base drawn
+  // directly from this page's own content. No network call, no external API,
+  // nothing sent anywhere. This is a lookup table, not a language model.
+  (function () {
+    var input = document.getElementById('askInput');
+    var submit = document.getElementById('askSubmit');
+    var chips = document.getElementById('askChips');
+    var answerBox = document.getElementById('askAnswer');
+    var answerQ = document.getElementById('askAnswerQ');
+    var answerA = document.getElementById('askAnswerA');
+    if (!input || !submit || !answerBox) return;
+
+    var KB = [
+      {
+        keywords: ['cost', 'price', 'pricing', 'fee', 'much', 'budget', 'expensive', 'rate', 'retainer'],
+        q: 'What does an engagement cost?',
+        a: 'Most engagements run four to eight weeks and are priced as a fixed fee scoped to a specific deliverable, not an hourly or open ended retainer. Exact pricing depends on scope, and the first conversation is free. See the ROI Calculator above for a rough sense of what automation work could be worth to your team.'
+      },
+      {
+        keywords: ['full time', 'fulltime', 'job', 'available', 'availability', 'moonlight', 'bandwidth', 'capacity'],
+        q: 'How does this work alongside your full time job?',
+        a: 'This practice runs alongside a full time senior IT role at a public biotech, by design. It keeps my judgment current and vendor neutral. Engagements are scoped narrowly and run on evenings and weekends, so there is no ambiguity about availability once scope is agreed.'
+      },
+      {
+        keywords: ['services', 'offer', 'pillars', 'four areas', 'overview', 'everything'],
+        q: 'What services do you offer?',
+        a: 'Four areas: AI Strategy and Governance, Microsoft 365 and Automation, IT Leadership Advisory, and IT Operations Excellence and Resilience. Most clients start with one and grow into the others. Ask about any of them specifically, or see the Services section above for the full breakdown.'
+      },
+      {
+        keywords: ['built', 'stack', 'architecture', 'hosting', 'technical', 'cloudflare', 'framework'],
+        q: 'How is this site built?',
+        a: 'Static HTML, CSS, and hand written JavaScript on Cloudflare Pages, deployed through Git based CI/CD, no framework and no server to patch. Full breakdown, including what is confirmed live versus what still needs verifying, is in the Architecture section above.'
+      },
+      {
+        keywords: ['who', 'fit', 'right for', 'small', 'startup', 'growing', 'ideal client'],
+        q: 'Who is this for?',
+        a: 'Small and growing companies that need senior IT or AI governance judgment but are not ready for a full time hire in that seat. Common starting points are an AI policy, an LLM vendor evaluation, or a Microsoft 365 and Copilot rollout plan.'
+      },
+      {
+        keywords: ['ai policy', 'acceptable use', 'governance framework', 'llm vendor', 'llm evaluation', 'vendor evaluation', 'vendor neutral'],
+        q: 'What does AI Strategy and Governance cover?',
+        a: 'Policy and acceptable use, LLM vendor evaluation, Copilot and assistant rollouts, retrieval augmented generation, and data residency and privacy for AI workloads. Vendor neutral, security first. This is the first of the four pillars above.'
+      },
+      {
+        keywords: ['copilot', 'claude', 'gemini', 'perplexity', 'chatgpt', 'azure openai', 'which ai tool'],
+        q: 'Which AI tools do you actually recommend?',
+        a: 'It depends on the workload and what data residency you need, which is exactly why LLM vendor evaluation is its own service line rather than a one size fits all recommendation. The AI and Tech Radar section above shows where Copilot, Azure OpenAI, Claude, Gemini, and Perplexity currently stand in terms of adopt, trial, assess, or hold.'
+      },
+      {
+        keywords: ['rag', 'retrieval augmented', 'knowledge base', 'vector', 'internal documents'],
+        q: 'Do you help build RAG or internal knowledge bases?',
+        a: 'Yes, retrieval augmented generation and knowledge base architecture are part of the AI Strategy and Governance pillar, including how to keep internal documents secure and correctly scoped while making them usable by an AI assistant.'
+      },
+      {
+        keywords: ['data residency', 'data privacy', 'privacy', 'where does data', 'data stay'],
+        q: 'How do you think about data residency and privacy for AI?',
+        a: 'Data residency and privacy is treated as a first class requirement, not an afterthought, when evaluating any AI tool or rollout. It shapes which tools land in Adopt versus Hold on the AI and Tech Radar above, and it is usually one of the first questions in an AI governance engagement.'
+      },
+      {
+        keywords: ['sharepoint', 'teams', 'exchange', 'microsoft 365', 'm365', 'copilot rollout', 'copilot deployment'],
+        q: 'What does the Microsoft 365 and Automation pillar include?',
+        a: 'M365 and Copilot deployment, SharePoint architecture, Teams governance, Exchange Online hardening, and workflow automation, aimed at getting more from the Microsoft stack you are already paying for rather than adding new tools.'
+      },
+      {
+        keywords: ['power platform', 'power automate', 'workflow automation', 'automate manual', 'reduce manual work'],
+        q: 'Can you help automate manual workflows?',
+        a: 'Yes, Power Platform automation is part of the Microsoft 365 and Automation pillar, focused on removing friction from daily operations using tools already licensed inside your M365 tenant.'
+      },
+      {
+        keywords: ['identity', 'licensing', 'entra', 'intune', 'endpoint', 'mfa', 'conditional access'],
+        q: 'Do you handle identity and licensing work?',
+        a: 'Yes, identity and licensing, including Entra ID and Intune configuration, is part of the Microsoft 365 and Automation pillar.'
+      },
+      {
+        keywords: ['fractional cio', 'fractional it director', 'interim cio', 'part time cio', 'cio services'],
+        q: 'What does a fractional CIO engagement look like?',
+        a: 'It covers org design, budget planning, vendor negotiation, and roadmap development for teams without a senior IT leader in seat, scoped the same way as any other engagement, four to eight weeks against a specific deliverable rather than an open ended retainer.'
+      },
+      {
+        keywords: ['org design', 'staffing', 'headcount', 'hiring', 'team structure', 'org chart'],
+        q: 'Can you help with IT org design and staffing?',
+        a: 'Yes, IT org and staffing models are part of the IT Leadership Advisory pillar, including how to structure a team as it scales from business hours support toward 24/7 coverage.'
+      },
+      {
+        keywords: ['vendor negotiation', 'vendor management', 'vendor strategy', 'renewal', 'contract negotiation'],
+        q: 'Do you help with vendor negotiation and budget strategy?',
+        a: 'Yes, budget and vendor strategy is part of the IT Leadership Advisory pillar, covering everything from renewal negotiation to right sizing licensing against actual usage.'
+      },
+      {
+        keywords: ['board', 'executive reporting', 'exec summary', 'present to leadership', 'reporting'],
+        q: 'Can you help with board level reporting?',
+        a: 'Yes, board ready reporting is part of the IT Leadership Advisory pillar, translating IT operations and roadmap work into a form a board or executive committee can act on quickly.'
+      },
+      {
+        keywords: ['incident', 'change management', 'change process', 'itil'],
+        q: 'Do you work on incident and change management process?',
+        a: 'Yes, ITIL aligned incident and change process is part of the IT Operations Excellence and Resilience pillar, focused on the operational discipline that keeps a growing company audit ready.'
+      },
+      {
+        keywords: ['soc 2', 'soc2', 'audit ready', 'compliance readiness'],
+        q: 'Do you help with SOC 2 readiness?',
+        a: 'Yes, SOC 2 Type 2 readiness work is part of the IT Operations Excellence and Resilience pillar. This is readiness and preparation work specifically, not a claim of certification, worth clarifying directly on a call since every organization is at a different stage.'
+      },
+      {
+        keywords: ['bcp', 'disaster recovery', 'business continuity', 'dr plan', 'resilience'],
+        q: 'Do you help with business continuity and disaster recovery planning?',
+        a: 'Yes, BCP and DR planning is part of the IT Operations Excellence and Resilience pillar.'
+      },
+      {
+        keywords: ['24/7', 'support tier', 'scaling support', 'helpdesk', 'tier 1', 'on call'],
+        q: 'Do you help with scaling IT support?',
+        a: 'Yes. IT org and staffing models, support tier design, and scaling from business hours toward 24/7 coverage are part of the IT Leadership Advisory and Operations Excellence pillars above.'
+      },
+      {
+        keywords: ['how does it start', 'discovery', 'kickoff', 'first step', 'process work', 'engagement start'],
+        q: 'How does an engagement actually start?',
+        a: 'A short discovery, usually two to three working sessions, to map current state, constraints, and the outcome you actually need. From there it moves to a working artifact you can act on, and finishes with documentation and a clean handoff so the capability stays with your team. See the Approach section above for the full three step model.'
+      },
+      {
+        keywords: ['deliverable', 'what do i get', 'output', 'end result'],
+        q: 'What do I actually walk away with?',
+        a: 'A working artifact scoped to the engagement, a policy, a vendor short list, a pilot plan, or a rollout playbook, plus documentation and training so the capability transfers to your team rather than creating dependency on outside help.'
+      },
+      {
+        keywords: ['adopt', 'trial', 'assess', 'hold', 'radar', 'quadrant'],
+        q: 'What do Adopt, Trial, Assess, and Hold mean on the radar?',
+        a: 'Adopt is in active production use, Trial is being piloted with a specific use case, Assess is being watched without a committed workload yet, and Hold means it is not a fit right now, usually over data handling or admin control gaps. See the AI and Tech Radar section above for current positions.'
+      },
+      {
+        keywords: ['contact', 'reach', 'call', 'book', 'meeting', 'talk', 'schedule', 'email'],
+        q: 'How do I get in touch?',
+        a: 'The fastest way is to book a call directly from the Contact section below. First conversation is free, and it is usually enough to tell within a week whether it is a fit.'
+      },
+      {
+        keywords: ['location', 'remote', 'houston', 'where are you', 'time zone'],
+        q: 'Where are you based, and do you work remotely?',
+        a: 'Based in Houston, Texas, and engagements are remote. Response time is typically within 48 hours on weekdays.'
+      },
+      {
+        keywords: ['background', 'experience', 'years', 'wharton', 'who are you', 'qualified', 'credentials'],
+        q: 'What is your background?',
+        a: 'Two decades of senior IT leadership across regulated industries: ten years as Vice President of IT and ten years as IT Director, plus the Chief Technology Officer Program at the Wharton School. Currently leading IT service operations and security at a publicly traded clinical stage biotech. Full detail in the Profile section above.'
+      }
+    ];
+
+    var FALLBACK = 'That is a bit more specific than this quick lookup can handle well. The FAQ section below covers the most common questions, or book a call and we can get into the details directly.';
+
+    function normalize(s) {
+      return s.toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+    }
+
+    function match(raw) {
+      var text = normalize(raw);
+      var best = null, bestScore = 0;
+      KB.forEach(function (entry) {
+        var score = 0;
+        entry.keywords.forEach(function (k) {
+          if (text.indexOf(k) !== -1) score += k.length > 4 ? 2 : 1;
+        });
+        if (score > bestScore) { bestScore = score; best = entry; }
+      });
+      return bestScore > 0 ? best : null;
+    }
+
+    function ask(raw) {
+      var q = raw.trim();
+      if (!q) return;
+      var hit = match(q);
+      answerQ.textContent = hit ? hit.q : q;
+      answerA.textContent = hit ? hit.a : FALLBACK;
+      answerBox.classList.add('visible');
+    }
+
+    submit.addEventListener('click', function () { ask(input.value); });
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') ask(input.value);
+    });
+    if (chips) {
+      chips.querySelectorAll('.ask-chip').forEach(function (chip) {
+        chip.addEventListener('click', function () {
+          var q = chip.getAttribute('data-q');
+          input.value = q;
+          ask(q);
+        });
+      });
+    }
+  })();
 
   // ROI calculator: pure client-side arithmetic, no network calls, no stored data.
   (function () {
