@@ -1,0 +1,11 @@
+[
+  {
+    "title": "Pragmatic Edge AI: Moving Beyond Centralized Cloud Hype",
+    "slug": "pragmatic-edge-ai-cloud-hype",
+    "date": "2026-10-12",
+    "summary": "Why high-assurance enterprises are shifting targeted inference workloads to edge nodes to mitigate API latency, sovereign data risks, and unpredictable compute bills.",
+    "tags": ["Enterprise AI", "Cloud Architecture", "Fractional CIO"],
+    "read_time": "3 min",
+    "content_html": "<h3>The Executive Shift</h3><p>Enterprise boards are demanding immediate productivity returns from generative AI initiatives, yet relying solely on centralized hyper-scaler APIs introduces compounding operational friction: unbounded monthly compute bills, round-trip latency, and heightened data residency exposure.</p><h3>Operational Friction</h3><p>Treating every internal AI query as a multi-billion-parameter API call is architectural overkill. For high-velocity executive decision support and edge triage, massive centralized models introduce unnecessary latency bottlenecks and regulatory headaches.</p><h3>The Pragmatic Playbook</h3><ul><li><strong>Map Workload Density:</strong> Segregate low-latency internal routing and semantic triage from heavy reasoning tasks.</li><li><strong>Adopt Edge-First Inference:</strong> Deploy targeted sub-8B parameter models on serverless edge workers close to the user session.</li><li><strong>Enforce Zero-Retention Ingestion:</strong> Isolate sensitive customer data before API egress.</li></ul><h3>Strategic Takeaway</h3><p>True technological maturity is not about deploying the largest model available; it is about architecting the leanest execution envelope that fulfills executive intent with deterministic speed and strict governance.</p>"
+  }
+]
