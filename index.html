@@ -1054,10 +1054,87 @@
       </details>
     </div>
   </section>
+  <!-- Weekly Executive Briefings -->
+  <section id="briefings" class="wrap">
+    <div class="section-index">10 / PERSPECTIVES</div>
+    <h2 class="section-title">Executive Briefings</h2>
+    <p class="section-sub">Weekly strategic perspectives on enterprise AI, cloud architecture, and pragmatic tech governance.</p>
+    
+    <div id="briefings-list" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 32px;"></div>
+  </section>
+
+  <!-- Executive Reading Modal -->
+  <div id="briefing-modal" style="display: none; position: fixed; inset: 0; background: rgba(5,8,16,0.85); backdrop-filter: blur(10px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div style="background: #0d121f; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; width: 100%; max-width: 720px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);">
+      
+      <div style="padding: 24px 28px 16px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: flex-start;">
+        <div>
+          <div id="modal-meta" style="color: #6366f1; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em;"></div>
+          <h2 id="modal-title" style="color: #f8fafc; font-size: 1.35rem; line-height: 1.3; margin: 0; font-weight: 700;"></h2>
+        </div>
+        <button onclick="closeBriefingModal()" style="background: transparent; border: none; color: #94a3b8; font-size: 1.6rem; cursor: pointer; padding: 0 8px; line-height: 1;">&times;</button>
+      </div>
+
+      <div id="modal-body" style="padding: 24px 28px; overflow-y: auto; color: #cbd5e1; font-size: 0.95rem; line-height: 1.7;"></div>
+
+      <div style="padding: 16px 28px; border-top: 1px solid rgba(255,255,255,0.08); background: #080c16; display: flex; justify-content: space-between; align-items: center;">
+        <span style="color: #64748b; font-size: 0.8rem;">Fractional CIO Advisory</span>
+        <a href="#contact" onclick="closeBriefingModal()" class="btn-pill" style="text-decoration: none;">Discuss with Riky</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let activeBriefings = [];
+
+    async function loadBriefings() {
+      try {
+        const res = await fetch('/data/briefings.json');
+        if (!res.ok) return;
+        activeBriefings = await res.json();
+
+        const container = document.getElementById('briefings-list');
+        if (!container || !activeBriefings.length) return;
+
+        container.innerHTML = activeBriefings.map((b, idx) => `
+          <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; padding: 24px; display: flex; flex-direction: column; justify-content: space-between;">
+            <div>
+              <div style="display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap;">
+                ${(b.tags || []).map(t => `<span style="font-size: 0.7rem; background: rgba(99,102,241,0.12); color: #818cf8; padding: 2px 8px; border-radius: 4px; font-weight: 500;">${t}</span>`).join('')}
+              </div>
+              <h3 style="color: #f1f5f9; font-size: 1.15rem; margin: 0 0 10px; line-height: 1.4; font-weight: 600;">${b.title}</h3>
+              <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.6; margin: 0 0 20px;">${b.summary}</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 14px;">
+              <span style="color: #64748b; font-size: 0.75rem;">${b.date} &bull; ${b.read_time || '3 min'}</span>
+              <button onclick="openBriefingModal(${idx})" class="btn-outline" style="cursor: pointer; padding: 4px 12px; font-size: 0.75rem;">Read Briefing &rarr;</button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.warn('Briefings feed offline:', e);
+      }
+    }
+
+    function openBriefingModal(index) {
+      const b = activeBriefings[index];
+      if (!b) return;
+      document.getElementById('modal-title').textContent = b.title;
+      document.getElementById('modal-meta').textContent = `${b.date} · ${b.read_time || '3 min'} READ`;
+      document.getElementById('modal-body').innerHTML = b.content_html;
+      document.getElementById('briefing-modal').style.display = 'flex';
+    }
+
+    function closeBriefingModal() {
+      document.getElementById('briefing-modal').style.display = 'none';
+    }
+
+    window.addEventListener('DOMContentLoaded', loadBriefings);
+  </script>
 
   <!-- Contact -->
   <section id="contact" class="wrap">
-    <div class="section-index">10 / CONTACT</div>
+    <div class="section-index">11 / CONTACT</div>
     <div class="contact-grid">
       <div>
         <h2 class="section-title">Let's see if there's a fit.</h2>
