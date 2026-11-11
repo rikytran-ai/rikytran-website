@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import datetime
 from pydantic import BaseModel, Field
 from google import genai
@@ -29,52 +30,26 @@ Writing voice:
   4. <h3>Strategic Takeaway</h3> (Concluding executive guidance).
 """
 
+def generate_content_with_retry(client, **kwargs):
+    """
+    Retries transient 503 (high demand) and 429 (rate-limit) errors with exponential backoff.
+    """
+    max_retries = 5
+    delay = 6  # Start waiting 6s, then 12s, 24s, 48s...
+    for attempt in range(1, max_retries + 1):
+        try:
+            return client.models.generate_content(**kwargs)
+        except Exception as e:
+            err_msg = str(e).upper()
+            is_transient = "503" in err_msg or "429" in err_msg or "UNAVAILABLE" in err_msg or "RESOURCE_EXHAUSTED" in err_msg
+            if is_transient and attempt < max_retries:
+                print(f"[Attempt {attempt}/{max_retries}] Gemini API high demand/rate limit encountered. Waiting {delay}s before retry...")
+                time.sleep(delay)
+                delay *= 2
+            else:
+                raise e
+
 def update_briefings_json():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("Missing GEMINI_API_KEY environment variable.")
-
-    client = genai.Client(api_key=api_key)
-    today_str = datetime.date.today().strftime("%Y-%m-%d")
-
-    prompt = f"""
-    Write a Fractional CIO executive briefing for the week of {today_str}.
-    Date field: {today_str}.
-    Topic scope: Select a timely enterprise IT challenge (e.g., enterprise shadow AI governance, cost realities of edge vs. cloud AI inference, balancing rapid AI deployment with ISO/GxP validation, or optimizing fractional tech leadership).
-    """
-
-    response = client.models.generate_content(
-                model="gemini-3.8-flash",
-        contents=prompt,
-        config=types.GenerateContentConfig(
-            system_instruction=SYSTEM_PROMPT,
-            response_mime_type="application/json",
-            response_schema=ExecutiveBriefing,
-            temperature=0.7,
-        ),
-    )
-
-    new_briefing = response.parsed.model_dump()
-
-    os.makedirs("data", exist_ok=True)
-    json_path = "data/briefings.json"
-
-    briefings = []
-    if os.path.exists(json_path):
-        try:
-            with open(json_path, "r", encoding="utf-8") as f:
-                briefings = json.load(f)
-        except json.JSONDecodeError:
-            briefings = []
-
-    briefings = [b for b in briefings if b.get("date") != today_str]
-    briefings.insert(0, new_briefing)
-    briefings = briefings[:10]
-
-    with open(json_path, "w", encoding="utf-8") as f:
-        json.dump(briefings, f, indent=2, ensure_ascii=False)
-
-    print(f"Updated {json_path} with briefing: {new_briefing['title']}")
-
-if __name__ == "__main__":
-    update_briefings_json()
