@@ -53,3 +53,51 @@ def update_briefings_json():
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         raise ValueError("Missing GEMINI_API_KEY environment variable.")
+
+    client = genai.Client(api_key=api_key)
+    today_str = datetime.date.today().strftime("%Y-%m-%d")
+
+    prompt = f"""
+    Write a Fractional CIO executive briefing for the week of {today_str}.
+    Date field: {today_str}.
+    Topic scope: Select a timely enterprise IT challenge (e.g., enterprise shadow AI governance, cost realities of edge vs. cloud AI inference, balancing rapid AI deployment with ISO/GxP validation, or optimizing fractional tech leadership).
+    """
+
+    print(f"Generating executive briefing for {today_str} using gemini-3.8-flash...")
+    response = generate_content_with_retry(
+        client,
+        model="gemini-3.8-flash",
+        contents=prompt,
+        config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            response_mime_type="application/json",
+            response_schema=ExecutiveBriefing,
+            temperature=0.7,
+        ),
+    )
+
+    new_briefing = response.parsed.model_dump()
+
+    os.makedirs("data", exist_ok=True)
+    json_path = "data/briefings.json"
+
+    briefings = []
+    if os.path.exists(json_path):
+        try:
+            with open(json_path, "r", encoding="utf-8") as f:
+                briefings = json.load(f)
+        except json.JSONDecodeError:
+            briefings = []
+
+    # Replace entry if generated today, prepend newest, and retain exactly the latest 6
+    briefings = [b for b in briefings if b.get("date") != today_str]
+    briefings.insert(0, new_briefing)
+    briefings = briefings[:6]
+
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(briefings, f, indent=2, ensure_ascii=False)
+
+    print(f"Successfully updated {json_path} with briefing: {new_briefing['title']} (Retaining latest {len(briefings)} entries)")
+
+if __name__ == "__main__":
+    update_briefings_json()
