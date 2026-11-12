@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{TITLE}} · Riky Tran</title>
+  <meta name="description" content="{{SUMMARY}}" />
+  <link rel="canonical" href="https://rikytran.com/briefings/{{SLUG}}/" />
+  
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="{{TITLE}}" />
+  <meta property="og:description" content="{{SUMMARY}}" />
+  <meta property="og:url" content="https://rikytran.com/briefings/{{SLUG}}/" />
+  <meta property="og:site_name" content="Riky Tran Advisory" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://assets.calendly.com/assets/external/widget.css" rel="stylesheet">
+  <script src="https://assets.calendly.com/assets/external/widget.js" type="text/javascript" async></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "{{TITLE}}",
+    "description": "{{SUMMARY}}",
+    "datePublished": "{{DATE}}",
+    "author": {
+      "@type": "Person",
+      "name": "Riky Tran",
+      "url": "https://rikytran.com/"
+    }
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #050814;
+      --card-bg: #0d121f;
+      --text-primary: #f3f5fb;
+      --text-body: #b9c2da;
+      --text-muted: #7d879e;
+      --accent-blue: #4d8dff;
+      --accent-purple: #9b5cff;
+      --accent-pink: #ff5cb3;
+      --border: rgba(255,255,255,0.09);
+      --gradient: linear-gradient(90deg, var(--accent-blue), var(--accent-purple), var(--accent-pink));
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text-body);
+      font-family: 'Inter', sans-serif; line-height: 1.7; padding: 40px 20px 80px;
+    }
+    .container { max-width: 760px; margin: 0 auto; }
+    .back-nav { margin-bottom: 32px; }
+    .back-nav a { color: var(--accent-blue); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .meta { color: #818cf8; font-size: 0.85rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 12px; }
+    h1 { font-family: 'Space Grotesk', sans-serif; color: var(--text-primary); font-size: clamp(2rem, 4vw, 2.7rem); line-height: 1.2; margin: 0 0 24px; }
+    .tags { display: flex; gap: 8px; margin-bottom: 32px; flex-wrap: wrap; }
+    .tag { font-size: 0.75rem; background: rgba(99,102,241,0.12); color: #818cf8; padding: 4px 10px; border-radius: 999px; }
+    .content h3 { font-family: 'Space Grotesk', sans-serif; color: var(--text-primary); margin-top: 36px; margin-bottom: 12px; font-size: 1.3rem; }
+    .content p { margin: 0 0 20px; font-size: 1.05rem; }
+    .content ul { margin: 0 0 24px; padding-left: 20px; }
+    .content li { margin-bottom: 8px; }
+    .cta-card {
+      margin-top: 56px; padding: 32px; background: var(--card-bg);
+      border: 1px solid var(--border); border-radius: 14px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;
+    }
+    .btn-pill {
+      background: var(--gradient); color: #050814; font-weight: 600;
+      padding: 12px 24px; border-radius: 999px; text-decoration: none; display: inline-block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="back-nav"><a href="/#briefings">&larr; Back to Perspectives</a></div>
+    <div class="meta">{{DATE}} &bull; {{READ_TIME}} READ</div>
+    <h1>{{TITLE}}</h1>
+    <div class="tags">{{TAGS_HTML}}</div>
+    <div class="content">{{CONTENT_HTML}}</div>
+    <div class="cta-card">
+      <div>
+        <strong style="color:var(--text-primary); display:block; margin-bottom:4px;">Facing this strategic friction?</strong>
+        <span style="font-size:0.9rem; color:var(--text-muted);">Book a focused 30-minute working conversation.</span>
+      </div>
+      <a href="https://calendly.com/email-rikytran/30min" onclick="Calendly.initPopupWidget({url: 'https://calendly.com/email-rikytran/30min'}); return false;" class="btn-pill">Discuss with Riky</a>
+    </div>
+  </div>
+</body>
+</html>
