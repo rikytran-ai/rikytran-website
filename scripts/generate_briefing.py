@@ -31,11 +31,8 @@ Writing voice:
 """
 
 def generate_content_with_retry(client, **kwargs):
-    """
-    Retries transient 503 (high demand) and 429 (rate-limit) errors with exponential backoff.
-    """
     max_retries = 5
-    delay = 6  # Start waiting 6s, then 12s, 24s, 48s...
+    delay = 6
     for attempt in range(1, max_retries + 1):
         try:
             return client.models.generate_content(**kwargs)
@@ -43,11 +40,55 @@ def generate_content_with_retry(client, **kwargs):
             err_msg = str(e).upper()
             is_transient = "503" in err_msg or "429" in err_msg or "UNAVAILABLE" in err_msg or "RESOURCE_EXHAUSTED" in err_msg
             if is_transient and attempt < max_retries:
-                print(f"[Attempt {attempt}/{max_retries}] Gemini API high demand/rate limit encountered. Waiting {delay}s before retry...")
+                print(f"[Attempt {attempt}/{max_retries}] Gemini API busy. Waiting {delay}s...")
                 time.sleep(delay)
                 delay *= 2
             else:
                 raise e
+
+def render_static_briefing_pages(briefings):
+    template_path = "templates/briefing.html"
+    if not os.path.exists(template_path):
+        return
+
+    with open(template_path, "r", encoding="utf-8") as f:
+        template = f.read()
+
+    for b in briefings:
+        slug = b.get("slug")
+        if not slug:
+            continue
+
+        dir_path = os.path.join("briefings", slug)
+        os.makedirs(dir_path, exist_ok=True)
+        file_path = os.path.join(dir_path, "index.html")
+
+        tags_html = "".join([f'<span class="tag">{t}</span>' for t in b.get("tags", [])])
+        page_html = (
+            template.replace("{{TITLE}}", b.get("title", ""))
+            .replace("{{SUMMARY}}", b.get("summary", ""))
+            .replace("{{DATE}}", b.get("date", ""))
+            .replace("{{READ_TIME}}", b.get("read_time", "3 min"))
+            .replace("{{SLUG}}", slug)
+            .replace("{{TAGS_HTML}}", tags_html)
+            .replace("{{CONTENT_HTML}}", b.get("content_html", ""))
+        )
+
+        with open(file_path, "w", encoding="utf-8") as out:
+            out.write(page_html)
+
+    # Automatically keep sitemap.xml synchronized
+    sitemap_path = "sitemap.xml"
+    if os.path.exists(sitemap_path):
+        with open(sitemap_path, "r", encoding="utf-8") as sm:
+            content = sm.read()
+        for b in briefings:
+            loc = f"https://rikytran.com/briefings/{b.get('slug')}/"
+            if loc not in content and "</urlset>" in content:
+                entry = f"  <url>\n    <loc>{loc}</loc>\n    <lastmod>{b.get('date')}</lastmod>\n    <changefreq>monthly</changefreq>\n  </url>\n</urlset>"
+                content = content.replace("</urlset>", entry)
+        with open(sitemap_path, "w", encoding="utf-8") as sm:
+            sm.write(content)
 
 def update_briefings_json():
     api_key = os.environ.get("GEMINI_API_KEY")
@@ -89,7 +130,6 @@ def update_briefings_json():
         except json.JSONDecodeError:
             briefings = []
 
-    # Replace entry if generated today, prepend newest, and retain exactly the latest 6
     briefings = [b for b in briefings if b.get("date") != today_str]
     briefings.insert(0, new_briefing)
     briefings = briefings[:6]
@@ -97,7 +137,10 @@ def update_briefings_json():
     with open(json_path, "w", encoding="utf-8") as f:
         json.dump(briefings, f, indent=2, ensure_ascii=False)
 
-    print(f"Successfully updated {json_path} with briefing: {new_briefing['title']} (Retaining latest {len(briefings)} entries)")
+    # Auto-generate individual static pages and update sitemap
+    render_static_briefing_pages(briefings)
+
+    print(f"Successfully updated {json_path} and static pages for {new_briefing['title']}")
 
 if __name__ == "__main__":
     update_briefings_json()
